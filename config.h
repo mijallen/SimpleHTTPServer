@@ -16,21 +16,25 @@ enum ConfigurationStatus {
 
 /* Creating/Destroying Configurations */
 ConfigurationRef configCreate(void);
-void configDestroy(ConfigurationRef configRef);
+void configDestroy(ConfigurationRef config);
 
 /* Loading Configurations */
 
-enum ConfigurationStatus configParseString(
-    ConfigurationRef configRef, 
+enum ConfigurationStatus configLoadFile(
+    ConfigurationRef config,
+    const char *filepath);
+
+enum ConfigurationStatus configLoadString(
+    ConfigurationRef config, 
     const char *string);
 
 /* Accessors */
-unsigned short configPort(ConfigurationRef configRef);
+unsigned short configPort(ConfigurationRef config);
 
 /* Mutators */
 
 enum ConfigurationStatus configSetOption(
-    ConfigurationRef configRef,
+    ConfigurationRef config,
     const char *name,
     const char *value);
 
