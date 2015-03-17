@@ -89,9 +89,6 @@ void printWithEscapeCharacters(FILE *out, char *message) {
     index += 1;
     currentCharacter = message[index];
     }
-
-    fputc('\\', out);
-    fputc('0', out);
 }
 
 // server configuration functions //
