@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <stdio.h>
-#include <yaml.h>
+#include "lib/libyaml/include/yaml.h"
 #include "config.h"
 
 struct Configuration {
@@ -18,7 +18,7 @@ struct Configuration {
 ConfigurationRef configCreate() {
     ConfigurationRef config = malloc(sizeof(struct Configuration));
     if (config != NULL) {
-        config->port = 0;
+        config->port = 8080;
     }
 
     return config;
@@ -51,7 +51,8 @@ enum ConfigurationStatus _configLoadDocument(ConfigurationRef config, yaml_docum
                 break;
             }
         }
-    } else {
+    }
+    else {
         status = CONFIG_INVALID_ROOT_ERROR;
     }
 
@@ -86,13 +87,16 @@ enum ConfigurationStatus configLoadFile(ConfigurationRef config, const char *fil
     enum ConfigurationStatus status = CONFIG_SUCCESS;
     yaml_parser_t parser;
     yaml_document_t document;
+
+    FILE *file = fopen(filepath, "r");
     
     yaml_parser_initialize(&parser);
-    yaml_parser_set_input_file(&parser, (const unsigned char *)filepath);
+    yaml_parser_set_input_file(&parser, file);
     yaml_parser_load(&parser, &document);
 
     status = _configLoadDocument(config, &document);
 
+    fclose(file);
     yaml_parser_delete(&parser);
     yaml_document_delete(&document);
 
