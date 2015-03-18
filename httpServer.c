@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "config.h"
 
 // check if system is Windows //
 
@@ -93,12 +94,16 @@ void printWithEscapeCharacters(FILE *out, char *message) {
 
 // server configuration functions //
 
-void checkArguments(int argc, char **argv) {
+void checkArguments(int argc, char **argv, ConfigurationRef config) {
     argc = argc;
     argv = argv;
+
+    if (argc > 2) {
+        configLoadFile(config, argv[1]);
+    }
 }
 
-int setupServer(unsigned short portNumber) {
+int setupServer(ConfigurationRef config) {
     int socketNumber = 0;
     int status = 0;
     struct sockaddr_in configuration = (const struct sockaddr_in){0};
@@ -112,7 +117,7 @@ int setupServer(unsigned short portNumber) {
     memset(&configuration, 0, sizeof(configuration));
     configuration.sin_family = AF_INET;
     configuration.sin_addr.s_addr = htonl(INADDR_ANY);
-    configuration.sin_port = htons(portNumber);
+    configuration.sin_port = htons(configPort(config));
 
     status = bind(socketNumber, (struct sockaddr*)&configuration, sizeof(configuration));
     if (status < 0) {
@@ -157,8 +162,9 @@ int main(int argc, char **argv) {
     int clientSocket = 0;
     int receivedCharacters = 0;
     char messageBuffer[BUFFER_SIZE];
+    ConfigurationRef config = configCreate();
 
-    checkArguments(argc, argv);
+    checkArguments(argc, argv, config);
 
     // conditional calls to winsock methods //
     #ifdef _WINDOWS_DETECTED_
@@ -169,7 +175,7 @@ int main(int argc, char **argv) {
       }
     #endif
 
-    serverSocket = setupServer(51717);
+    serverSocket = setupServer(config);
 
     printf("awaiting client connections...\n\n");
 
